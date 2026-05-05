@@ -1,9 +1,5 @@
 <x-portal.dashboard-layout title="{{ __('Papan Pemuka') }}">
     @php
-        use App\Models\CaseDutiSetem;
-        use App\Models\CasePinjamanPerumahan;
-        use App\Models\CaseTukarSyarat;
-
         $user = auth()->user();
         $firstName = explode(' ', $user?->name ?? 'Warga')[0];
         $today = \Carbon\Carbon::now()->locale(app()->getLocale())->isoFormat('dddd, D MMMM Y');
@@ -11,25 +7,25 @@
         $inProgressStatuses = ['diterima', 'dalam_semakan', 'menunggu_dokumen'];
         $attentionStatuses = ['menunggu_dokumen'];
 
-        $totalDS = CaseDutiSetem::count();
-        $totalPP = CasePinjamanPerumahan::count();
-        $totalTS = CaseTukarSyarat::count();
+        $totalDS = \App\Models\CaseDutiSetem::count();
+        $totalPP = \App\Models\CasePinjamanPerumahan::count();
+        $totalTS = \App\Models\CaseTukarSyarat::count();
 
-        $progressDS = CaseDutiSetem::whereIn('status', $inProgressStatuses)->count();
-        $progressPP = CasePinjamanPerumahan::whereIn('status', $inProgressStatuses)->count();
-        $progressTS = CaseTukarSyarat::whereIn('status', $inProgressStatuses)->count();
+        $progressDS = \App\Models\CaseDutiSetem::whereIn('status', $inProgressStatuses)->count();
+        $progressPP = \App\Models\CasePinjamanPerumahan::whereIn('status', $inProgressStatuses)->count();
+        $progressTS = \App\Models\CaseTukarSyarat::whereIn('status', $inProgressStatuses)->count();
 
-        $attentionDS = CaseDutiSetem::whereIn('status', $attentionStatuses)->count();
-        $attentionPP = CasePinjamanPerumahan::whereIn('status', $attentionStatuses)->count();
-        $attentionTS = CaseTukarSyarat::whereIn('status', $attentionStatuses)->count();
+        $attentionDS = \App\Models\CaseDutiSetem::whereIn('status', $attentionStatuses)->count();
+        $attentionPP = \App\Models\CasePinjamanPerumahan::whereIn('status', $attentionStatuses)->count();
+        $attentionTS = \App\Models\CaseTukarSyarat::whereIn('status', $attentionStatuses)->count();
 
-        $approvedDS = CaseDutiSetem::where('status', 'diluluskan')->count();
-        $approvedPP = CasePinjamanPerumahan::where('status', 'diluluskan')->count();
-        $approvedTS = CaseTukarSyarat::where('status', 'diluluskan')->count();
+        $approvedDS = \App\Models\CaseDutiSetem::where('status', 'diluluskan')->count();
+        $approvedPP = \App\Models\CasePinjamanPerumahan::where('status', 'diluluskan')->count();
+        $approvedTS = \App\Models\CaseTukarSyarat::where('status', 'diluluskan')->count();
 
-        $rejectedDS = CaseDutiSetem::where('status', 'ditolak')->count();
-        $rejectedPP = CasePinjamanPerumahan::where('status', 'ditolak')->count();
-        $rejectedTS = CaseTukarSyarat::where('status', 'ditolak')->count();
+        $rejectedDS = \App\Models\CaseDutiSetem::where('status', 'ditolak')->count();
+        $rejectedPP = \App\Models\CasePinjamanPerumahan::where('status', 'ditolak')->count();
+        $rejectedTS = \App\Models\CaseTukarSyarat::where('status', 'ditolak')->count();
 
         $kpi = [
             'total'     => $totalDS + $totalPP + $totalTS,
@@ -47,33 +43,24 @@
             'ditolak'          => ['key' => 'rej', 'label' => __('Ditolak')],
         ];
 
-        $recentDS = CaseDutiSetem::latest('tarikh_terima')->take(5)->get()->map(fn ($c) => [
-            'no'     => $c->no_rujukan,
-            'tajuk'  => $c->jenis_pindahmilik ?: __('Permohonan Duti Setem'),
-            'jenis'  => __('Duti Setem'),
-            'status' => $statusMap[$c->status]['key'] ?? 'sub',
-            'status_label' => $statusMap[$c->status]['label'] ?? ucfirst($c->status),
-            'tarikh' => optional($c->tarikh_terima)->translatedFormat('d M Y') ?: '-',
-            'sort'   => $c->tarikh_terima,
-        ]);
-        $recentPP = CasePinjamanPerumahan::latest('tarikh_terima')->take(5)->get()->map(fn ($c) => [
-            'no'     => $c->no_rujukan,
-            'tajuk'  => __('Pinjaman Perumahan'),
-            'jenis'  => __('Pinjaman Perumahan'),
-            'status' => $statusMap[$c->status]['key'] ?? 'sub',
-            'status_label' => $statusMap[$c->status]['label'] ?? ucfirst($c->status),
-            'tarikh' => optional($c->tarikh_terima)->translatedFormat('d M Y') ?: '-',
-            'sort'   => $c->tarikh_terima,
-        ]);
-        $recentTS = CaseTukarSyarat::latest('tarikh_terima')->take(5)->get()->map(fn ($c) => [
-            'no'     => $c->no_rujukan,
-            'tajuk'  => __('Tukar Syarat Tanah'),
-            'jenis'  => __('Tukar Syarat'),
-            'status' => $statusMap[$c->status]['key'] ?? 'sub',
-            'status_label' => $statusMap[$c->status]['label'] ?? ucfirst($c->status),
-            'tarikh' => optional($c->tarikh_terima)->translatedFormat('d M Y') ?: '-',
-            'sort'   => $c->tarikh_terima,
-        ]);
+        $mapCase = function ($c, $jenisLabel, $tajukFallback) use ($statusMap) {
+            return [
+                'no'     => $c->no_rujukan,
+                'tajuk'  => $tajukFallback,
+                'jenis'  => $jenisLabel,
+                'status' => $statusMap[$c->status]['key'] ?? 'sub',
+                'status_label' => $statusMap[$c->status]['label'] ?? ucfirst($c->status),
+                'tarikh' => optional($c->tarikh_terima)->translatedFormat('d M Y') ?: '-',
+                'sort'   => $c->tarikh_terima,
+            ];
+        };
+
+        $recentDS = \App\Models\CaseDutiSetem::latest('tarikh_terima')->take(5)->get()
+            ->map(fn ($c) => $mapCase($c, __('Duti Setem'), $c->jenis_pindahmilik ?: __('Permohonan Duti Setem')));
+        $recentPP = \App\Models\CasePinjamanPerumahan::latest('tarikh_terima')->take(5)->get()
+            ->map(fn ($c) => $mapCase($c, __('Pinjaman Perumahan'), __('Pinjaman Perumahan')));
+        $recentTS = \App\Models\CaseTukarSyarat::latest('tarikh_terima')->take(5)->get()
+            ->map(fn ($c) => $mapCase($c, __('Tukar Syarat'), __('Tukar Syarat Tanah')));
 
         $recent = collect()
             ->concat($recentDS)
