@@ -1,0 +1,23 @@
+# Tender / govt reference material (sensitive)
+reference/
+
+# Tool caches / local state
+.gstack/
+.playwright-mcp/
+
+# Screenshots (mockup iterations)
+*.png
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
