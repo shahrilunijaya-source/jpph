@@ -5,8 +5,8 @@ reference/
 .gstack/
 .playwright-mcp/
 
-# Screenshots (mockup iterations)
-*.png
+# Screenshots (mockup iterations) — only at repo root, not inside app
+/*.png
 
 # OS / editor
 .DS_Store
