@@ -31,7 +31,7 @@ Route::get('/dashboard', function () {
         return redirect()->route('login');
     }
     return $user->canManageContent()
-        ? redirect()->to('/panel')
+        ? redirect()->to('/admin')
         : redirect()->route('myjpph.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
