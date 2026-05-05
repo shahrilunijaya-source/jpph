@@ -30,9 +30,7 @@ Route::get('/dashboard', function () {
     if (! $user) {
         return redirect()->route('login');
     }
-    return $user->canManageContent()
-        ? redirect()->to('/admin')
-        : redirect()->route('myjpph.dashboard');
+    return redirect()->route('myjpph.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
 // MyJPPH staff portal
