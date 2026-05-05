@@ -17,7 +17,9 @@ Thumbs.db
 # Node
 node_modules/
 dist/
-build/
 .env
 .env.local
 *.log
+
+# Allow Laravel vite build output (needed for shared hosting deploy)
+!portal-jpph/public/build/
